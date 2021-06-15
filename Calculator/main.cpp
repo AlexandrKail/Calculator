@@ -19,13 +19,13 @@ void userInput(char* input, size_t size)
 		char simb{};
 		int i{1};
 		input[0] = '!';
-		cout << "Введите вырожение типа \"a#b#c=\" где # = +,-,*,/: ";
+		cout << "Р’РІРµРґРёС‚Рµ РІС‹СЂРѕР¶РµРЅРёРµ С‚РёРїР° \"a#b#c=\" РіРґРµ # = +,-,*,/: ";
 		do
 		{
 
 			cin >> a;
 			i += sprintf_s(input + i,size-i, "%d", a);
-//			cout << "Введите символ(+,-,*,/): ";
+//			cout << "Р’РІРµРґРёС‚Рµ СЃРёРјРІРѕР»(+,-,*,/): ";
 			cin >> simb;
 			input[i] = simb;
 			i++;
@@ -96,7 +96,7 @@ int compute(char* input,size_t size)
 		
 		bool flag = true;
 
-//Обрабатываем * и /
+//processing * and /
 		while (flag)
 		{
 			int a{}, b{}, i{};
@@ -136,7 +136,7 @@ int compute(char* input,size_t size)
 			}
 		}
 		flag = true;
-	//Обработка + и -
+	//Processing + and -
 		while (flag)
 		{
 			int a{}, b{}, i{};
@@ -192,5 +192,5 @@ int main()
 	userInput(input,size);
 	int result{};
 	result = compute(input,size);
-	std::cout << "Результат = " << result << '\n';
+	std::cout << "Р РµР·СѓР»СЊС‚Р°С‚ = " << result << '\n';
 }
