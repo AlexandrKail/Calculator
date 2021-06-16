@@ -19,38 +19,21 @@ void userInput(char* input, size_t size)
 {
 		int val{};
 		char simb{};
+		std::string str;
 		int i{1};
 		input[0] = '!';
 		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
-		while (true)
+		while (simb != '=')
 		{
-			while (simb != '=')
-			{
-				//			std::cout << "Введите число: ";
-				std::cin >> val;
-				i += sprintf_s(input + i, size - i, "%d", val);
-				//			std::cout << "Знак(+,-,*,/ или =): ";
-				std::cin >> simb;
-				input[i] = simb;
-				i++;
-			}
-
-			int count{};
-			for (int j{ 0 }; j <= i; j++)
-			{
-				if (((int)input[j] >= (int)'0' && (int)input[j] <= (int)'9') || input[j] == '+' ||
-					input[j] == '-' || input[j] == '*' || input[j] == '/' || input[j] == '=')
-				{
-					count++;
-				}
-			}
-
-			if (count == i - 1)
-				break;
-			else
-				std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
-
+			//	std::cout << "Введите число: ";
+			std::cin >> str;
+			i += sprintf_s(input + i, size - i, "%d", val);
+			//			std::cout << "Знак(+,-,*,/ или =): ";
+			std::cin >> simb;
+			input[i] = simb;
+			i++;
 		}
+
 }
 
 //#Сжатие массива путём записи вычисленных значений#
