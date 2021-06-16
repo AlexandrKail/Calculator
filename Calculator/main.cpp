@@ -2,7 +2,7 @@
 
 //#Пеоеводит символы в числа#
 //#Принимает: массив данных, текущий указатель на последний символ пер. числа, кол. символов в переводимом числе# 
-int charToInt(char* input,int i,int numb)
+int charToInt(std::string &input,int i,int numb)
 {
 	int b{};
 	for (int fac{1}; numb > 0; numb--, i--,fac*=10)
@@ -13,69 +13,11 @@ int charToInt(char* input,int i,int numb)
 	return b;
 }
 
-//#Получает значения от пользователя и переводет их в символы#
-//#Принимает: массив для данных, размер массива#
-void userInput(char* input, size_t size)
-{
-		int val{};
-		char simb{};
-		std::string str;
-		int i{1};
-		input[0] = '!';
-		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
-		while (simb != '=')
-		{
-			//	std::cout << "Введите число: ";
-			std::cin >> str;
-			i += sprintf_s(input + i, size - i, "%d", val);
-			//			std::cout << "Знак(+,-,*,/ или =): ";
-			std::cin >> simb;
-			input[i] = simb;
-			i++;
-		}
-
-}
-
-//#Сжатие массива путём записи вычисленных значений#
-//#Принимает: Массив с данными, размер массива, текущая поз. в массиве, результат вырожения,
-//кол. символов лев. числа от ар. знака, кол. символов правого числа#
-void compArray(char* input,size_t size,int i ,int result,int lnumb,int rnumb)
-{
-	int foo{};
-	if (input[i + (rnumb+1)] == '=')
-	{
-		foo=sprintf_s(input + (i-lnumb), size - i, "%d", result);
-		input[i-lnumb+foo] = '=';
-	}
-	else
-	{
-		char buf[256];
-		int j{}, k{i};
-
-		while(input[k + rnumb+1] != '=')
-		{
-			buf[j] = input[k+rnumb+1];
-			j++;
-			k++;
-		}
-		buf[j] = '=';
-		j = 0;
-		foo = sprintf_s(input + (i - lnumb), size - i, "%d", result);
-		while (buf[j] != '=')
-		{
-			input[i-lnumb+foo] = buf[j];
-			j++;
-			i++;
-		}
-		input[i-lnumb+foo] = '=';
-	}
-
-}
 
 //#Вычесляет колличество символов числа, до арифмитического знака или после#
 //#Принимает: массив с данными, текущая позиция в массиве, флаг направления  true - 
 //в право(число находящаяся с право от ар. знака), false - влево.#
-int numbSize(char* input, int i,bool direction)
+int numbSize(std::string &input, int i,bool direction)
 {
 	int numb{};
 	if (direction != true)
@@ -97,9 +39,68 @@ int numbSize(char* input, int i,bool direction)
 	return numb;
 }
 
+void copy(std::string& input,int i , int lnumb ,char* buftmp)
+{
+	int j{};
+	while (buftmp[j] != '\0')
+	{
+		input[i - lnumb] = buftmp[j];
+		j++;
+		i++;
+	}
+	input[i - lnumb] = '=';
+	input[i - lnumb+1] = '\0';
+}
+
+
+//#Сжатие массива путём записи вычисленных значений#
+//#Принимает: Массив с данными, размер массива, текущая поз. в массиве, результат вырожения,
+//кол. символов лев. числа от ар. знака, кол. символов правого числа#
+void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
+{
+	int foo{};
+	char buftmp[64];
+	if (input[i + (rnumb + 1)] == '=')
+	{
+		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
+		copy(input,i,lnumb,buftmp);
+//		input[i - lnumb] += *buftmp;
+//		foo = sprintf_s(input + (i - lnumb), sizeof(input) - i, "%d", result);
+	}
+	else
+	{
+		char buf[256];
+		int j{}, k{ i };
+
+		while (input[k + rnumb + 1] != '=')
+		{
+			buf[j] = input[k + rnumb + 1];
+			j++;
+			k++;
+		}
+		buf[j] = '=';
+		buf[j + 1] = '\0';
+		j = 0;
+//		foo = sprintf_s(input + (i - lnumb), size - i, "%d", result);
+		foo = sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
+		copy(input, i, lnumb, buftmp);
+
+		while (buf[j] != '=')
+		{
+
+			input[i - lnumb + foo] = buf[j];
+			j++;
+			i++;
+		}
+		input[i - lnumb + foo] = '=';
+		input[i - lnumb + foo] = '\0';
+	}
+
+}
+
 //#Вычесления значений вырожения# 
 //#Принимает: массив преобразованных данных в символы, размер массива#
-int compute(char* input,size_t size)			
+int compute(std::string& input)			
 {
 	int result{};
 	{	
@@ -119,7 +120,7 @@ int compute(char* input,size_t size)
 					b = charToInt(input, i + rnumb, rnumb);
 
 					result = a * b;
-					compArray(input, size, i, result, lnumb, rnumb);
+					compArray(input, i, result, lnumb, rnumb);
 				}
 				else
 				{
@@ -129,7 +130,7 @@ int compute(char* input,size_t size)
 					b = charToInt(input, i + rnumb, rnumb);
 
 					result = a / b;
-					compArray(input, size, i, result, lnumb, rnumb);
+					compArray(input, i, result, lnumb, rnumb);
 				}
 
 				i = 0;		//Снова ищем знак * или /
@@ -150,7 +151,7 @@ int compute(char* input,size_t size)
 					b = charToInt(input, i + rnumb, rnumb);
 
 					result = a + b;
-					compArray(input, size, i, result, lnumb, rnumb);
+					compArray(input, i, result, lnumb, rnumb);
 				}
 				else
 				{
@@ -160,7 +161,7 @@ int compute(char* input,size_t size)
 					b = charToInt(input, i + rnumb, rnumb);
 
 					result = a - b;
-					compArray(input, size, i, result, lnumb, rnumb);
+					compArray(input, i, result, lnumb, rnumb);
 				}
 
 				i = 0;			//Снова ищем знак + или
@@ -175,13 +176,23 @@ int compute(char* input,size_t size)
 
 }
 
+//#Получает значения от пользователя и переводет их в символы#
+//#Принимает: массив для данных, размер массива#
+void userInput(std::string &input)
+{
+	std::string str;
+	std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";	//	std::cout << "Введите число: ";
+	std::cin >>str;
+	input = '!';
+	input += str;
+}
+
 int main()
 {
 	setlocale(0, "ru_RU.utf8");
-	const size_t size = 256;
-	char input[size]{};
-	userInput(input,size);
+	std::string input;
+	userInput(input);
 	int result{};
-	result = compute(input,size);
+	result = compute(input);
 	std::cout << "Результат = " << result << '\n';
 }
