@@ -22,7 +22,7 @@ int numbSize(std::string &input, int i,bool direction)
 	int numb{};
 	if (direction != true)
 	{
-		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i - 1] != '=' && input[i-1] != '!')
+		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i-1] != '!')
 		{
 			numb++;
 			i--;
@@ -30,7 +30,7 @@ int numbSize(std::string &input, int i,bool direction)
 	}
 	else
 	{
-		while (input[i + 1] != '+' && input[i + 1] != '-' && input[i + 1] != '*' && input[i + 1] != '/' && input[i + 1] != '=')
+		while (input[i + 1] != '+' && input[i + 1] != '-' && input[i + 1] != '*' && input[i + 1] != '/' && input[i + 1] != '!')
 		{
 			numb++;
 			i++;
@@ -48,8 +48,7 @@ void copy(std::string& input,int i , int lnumb ,char* buftmp)
 		j++;
 		i++;
 	}
-	input[i - lnumb] = '=';
-	input[i - lnumb+1] = '\0';
+	input[i - lnumb] = '\0';
 }
 
 
@@ -59,40 +58,38 @@ void copy(std::string& input,int i , int lnumb ,char* buftmp)
 void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 {
 	int foo{};
-	char buftmp[64];
-	if (input[i + (rnumb + 1)] == '=')
+	char buftmp[64]{};
+	if (input[i + (rnumb + 1)] == '!')
 	{
 		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input,i,lnumb,buftmp);
-//		input[i - lnumb] += *buftmp;
-//		foo = sprintf_s(input + (i - lnumb), sizeof(input) - i, "%d", result);
+		input[i - lnumb + foo] = '!';
+		input[i - lnumb + foo+1] = '\0';
+
 	}
 	else
 	{
-		char buf[256];
+		char buf[256]{};
 		int j{}, k{ i };
 
-		while (input[k + rnumb + 1] != '=')
+		while (input[k + rnumb + 1] != '\0')
 		{
 			buf[j] = input[k + rnumb + 1];
 			j++;
 			k++;
 		}
-		buf[j] = '=';
-		buf[j + 1] = '\0';
+		buf[j] = '\0';
 		j = 0;
-//		foo = sprintf_s(input + (i - lnumb), size - i, "%d", result);
 		foo = sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input, i, lnumb, buftmp);
 
-		while (buf[j] != '=')
+		while (buf[j] != '\0')
 		{
 
 			input[i - lnumb + foo] = buf[j];
 			j++;
 			i++;
 		}
-		input[i - lnumb + foo] = '=';
 		input[i - lnumb + foo] = '\0';
 	}
 
@@ -104,10 +101,12 @@ int compute(std::string& input)
 {
 	int result{};
 	{	
-	//processing * and /
-		int i{}, a{}, b{};
+		int valL{}, valR{};
 		int lnumb{}, rnumb{};
-		while (input[i] != '=')
+		int i{1};
+
+		//processing * and /
+		while (input[i] != '!')
 		{
 			if (input[i] == '*' || input[i] == '/')
 			{
@@ -115,21 +114,21 @@ int compute(std::string& input)
 				{
 
 					lnumb = numbSize(input, i, false);
-					a = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					b = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb);
 
-					result = a * b;
+					result = valL * valR;
 					compArray(input, i, result, lnumb, rnumb);
 				}
 				else
 				{
 					lnumb = numbSize(input, i, false);
-					a = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					b = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb);
 
-					result = a / b;
+					result = valL / valR;
 					compArray(input, i, result, lnumb, rnumb);
 				}
 
@@ -138,29 +137,29 @@ int compute(std::string& input)
 			i++;
 		}
 	//Processing + and -
-		i = 0;
-		while (input[i] != '=')
+		i = 1;
+		while (input[i] != '!')
 		{
 			if (input[i] == '+' || input[i] == '-')
 			{
 				if (input[i] == '+')
 				{
 					lnumb = numbSize(input, i, false);
-					a = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					b = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb);
 
-					result = a + b;
+					result = valL + valR;
 					compArray(input, i, result, lnumb, rnumb);
 				}
 				else
 				{
 					lnumb = numbSize(input, i, false);
-					a = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					b = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb);
 
-					result = a - b;
+					result = valL - valR;
 					compArray(input, i, result, lnumb, rnumb);
 				}
 
@@ -176,15 +175,64 @@ int compute(std::string& input)
 
 }
 
+int correctInput(std::string const& str,int size)
+{
+	int i{};
+	while (str[i] != '\0')
+	{
+		if ((int)str[i] >= (int)'0' && (int)str[i] <= (int)'9' || str[i] == '+' || str[i] == '-' ||
+			str[i] == '*' || str[i] == '/')
+		{
+//Проверка на ар. знак в начале
+			if (i == 0)
+			{
+				if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
+				{
+					return -1;
+				}
+			}
+
+// Проверка на два знака подряд
+			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
+			{
+				if (str[i - 1] == '+' || str[i - 1] == '-' || str[i - 1] == '*' || str[i - 1] == '/')
+				{
+					return -1;
+				}
+			}
+
+			if (str[size-1] == '+' || str[size-1] == '-' || str[size-1] == '*' || str[size-1] == '/')
+			{
+				return -1;
+			}
+			i++;
+		}
+		else
+			return -1;
+	}
+	return 0;
+
+}
+
 //#Получает значения от пользователя и переводет их в символы#
 //#Принимает: массив для данных, размер массива#
 void userInput(std::string &input)
 {
 	std::string str;
-	std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";	//	std::cout << "Введите число: ";
-	std::cin >>str;
+	while (true)
+	{
+		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";	//	std::cout << "Введите число: ";
+		std::cin >> str;
+		if (correctInput(str,str.size()) == 0)
+			break;
+		std::cout << "Неверный ввод!\n";
+	}
+
 	input = '!';
 	input += str;
+	int i;
+	i = input.size();
+	input += "!";
 }
 
 int main()
