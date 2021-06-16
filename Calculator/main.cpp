@@ -21,15 +21,38 @@ void userInput(char* input, size_t size)
 		char simb{};
 		int i{1};
 		input[0] = '!';
-		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
-
+//		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
 		while(simb != '=')
 		{
+			while (true)
+			{
+				std::cout << "Введите число: ";
+				std::cin >> val;
+				if (std::cin.fail())
+				{
+					std::cin.clear();
+					std::cin.ignore(32'767, '\n');
+				}
+				else
+				{
+					i += sprintf_s(input + i, size - i, "%d", val);
+					break;
+				}
+			}
 
-			std::cin >> val;
-			i += sprintf_s(input + i,size-i, "%d", val);
-			std::cin >> simb;
-			input[i] = simb;
+			while (true)
+			{
+				std::cout << "Знак(+,-,*,/ или =): ";
+				std::cin >> simb;
+				if (simb == '+' || simb == '-' || simb == '*' || simb == '/' || simb == '=')
+				{
+					input[i] = simb;
+					break;
+				}
+
+				else
+					std::cout << "Неверный ввод!\n";
+			}
 			i++;
 		} 
 }
@@ -101,7 +124,7 @@ int compute(char* input,size_t size)
 {
 	int result{};
 	{	
-//processing * and /
+	//processing * and /
 		int i{}, a{}, b{};
 		int lnumb{}, rnumb{};
 		while (input[i] != '=')
@@ -161,7 +184,7 @@ int compute(char* input,size_t size)
 					compArray(input, size, i, result, lnumb, rnumb);
 				}
 
-				i = 0;			//Снова ищем знак + или -
+				i = 0;			//Снова ищем знак + или
 			}
 			i++;
 		}
