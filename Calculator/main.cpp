@@ -21,40 +21,36 @@ void userInput(char* input, size_t size)
 		char simb{};
 		int i{1};
 		input[0] = '!';
-//		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
-		while(simb != '=')
+		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
+		while (true)
 		{
-			while (true)
+			while (simb != '=')
 			{
-				std::cout << "Введите число: ";
+				//			std::cout << "Введите число: ";
 				std::cin >> val;
-				if (std::cin.fail())
-				{
-					std::cin.clear();
-					std::cin.ignore(32'767, '\n');
-				}
-				else
-				{
-					i += sprintf_s(input + i, size - i, "%d", val);
-					break;
-				}
-			}
-
-			while (true)
-			{
-				std::cout << "Знак(+,-,*,/ или =): ";
+				i += sprintf_s(input + i, size - i, "%d", val);
+				//			std::cout << "Знак(+,-,*,/ или =): ";
 				std::cin >> simb;
-				if (simb == '+' || simb == '-' || simb == '*' || simb == '/' || simb == '=')
-				{
-					input[i] = simb;
-					break;
-				}
-
-				else
-					std::cout << "Неверный ввод!\n";
+				input[i] = simb;
+				i++;
 			}
-			i++;
-		} 
+
+			int count{};
+			for (int j{ 0 }; j <= i; j++)
+			{
+				if (((int)input[j] >= (int)'0' && (int)input[j] <= (int)'9') || input[j] == '+' ||
+					input[j] == '-' || input[j] == '*' || input[j] == '/' || input[j] == '=')
+				{
+					count++;
+				}
+			}
+
+			if (count == i - 1)
+				break;
+			else
+				std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";
+
+		}
 }
 
 //#Сжатие массива путём записи вычисленных значений#
