@@ -11,13 +11,12 @@ int charToInt(std::string &input,int i,int numb,int* minus)
 	for (int fac{1}; numb > 0; numb--, i--,fac*=10)
 	{
 		b += static_cast<int>(input[i] - (int)'0')*fac;
-
 	}
 
 	if (*minus == 1)
 		b = b - b * 2;
 
-//	*minus = 0;
+	*minus = 0;
 	return b;
 }
 
