@@ -1,15 +1,23 @@
 #include<iostream>
 
+int* minus = nullptr;
+
 //#Пеоеводит символы в числа#
 //#Принимает: массив данных, текущий указатель на последний символ пер. числа, кол. символов в переводимом числе# 
-int charToInt(std::string &input,int i,int numb)
+int charToInt(std::string &input,int i,int numb,int* minus)
 {
 	int b{};
+
 	for (int fac{1}; numb > 0; numb--, i--,fac*=10)
 	{
 		b += static_cast<int>(input[i] - (int)'0')*fac;
 
 	}
+
+	if (*minus == 1)
+		b = b - b * 2;
+
+//	*minus = 0;
 	return b;
 }
 
@@ -20,6 +28,13 @@ int charToInt(std::string &input,int i,int numb)
 int numbSize(std::string &input, int i,bool direction)
 {
 	int numb{};
+
+	if (input[1] == '-' && (input[i] != '+' && input[i] != '-' && input[i] != '*' && input[i] != '/'))
+	{
+		i++;
+	}
+
+
 	if (direction != true)
 	{
 		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i-1] != '!')
@@ -41,6 +56,9 @@ int numbSize(std::string &input, int i,bool direction)
 
 void copy(std::string& input,int i , int lnumb ,char* buftmp)
 {
+	//if (*minus == 1)
+	//	lnumb++;
+
 	int j{};
 	while (buftmp[j] != '\0')
 	{
@@ -48,7 +66,7 @@ void copy(std::string& input,int i , int lnumb ,char* buftmp)
 		j++;
 		i++;
 	}
-	input[i - lnumb] = '\0';
+	//input[i - lnumb] = '\0';
 }
 
 
@@ -58,9 +76,10 @@ void copy(std::string& input,int i , int lnumb ,char* buftmp)
 void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 {
 	int foo{};
-	char buftmp[64]{};
+	char buftmp[256]{};
 	if (input[i + (rnumb + 1)] == '!')
 	{
+		
 		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input,i,lnumb,buftmp);
 		input[i - lnumb + foo] = '!';
@@ -100,6 +119,8 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 int compute(std::string& input)			
 {
 	int result{};
+	int min = 0;
+	minus = &min;
 	{	
 		int valL{}, valR{};
 		int lnumb{}, rnumb{};
@@ -108,15 +129,34 @@ int compute(std::string& input)
 		//processing * and /
 		while (input[i] != '!')
 		{
+			if (input[1] == '-')
+			{
+				{
+					i++;
+					while (input[i] != '!')
+					{
+						if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/')
+						{
+							*minus = 1;
+							goto next1;
+						}
+						i++;
+					}
+				}
+				*minus = 1;
+				break;
+			}
+next1:
+
 			if (input[i] == '*' || input[i] == '/')
 			{
 				if (input[i] == '*')
 				{
 
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb,minus);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb,minus);
 
 					result = valL * valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -124,9 +164,9 @@ int compute(std::string& input)
 				else
 				{
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb,minus);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb,minus);
 
 					result = valL / valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -140,14 +180,31 @@ int compute(std::string& input)
 		i = 1;
 		while (input[i] != '!')
 		{
+			if (input[1] == '-')
+			{
+					i++;
+					while (input[i] != '!')
+					{
+						if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/')
+						{
+							*minus = 1;
+							goto next2;
+						}
+						i++;
+					}
+
+				*minus = 1;
+				break;
+			}
+next2:
 			if (input[i] == '+' || input[i] == '-')
 			{
 				if (input[i] == '+')
 				{
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb,minus);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb,minus);
 
 					result = valL + valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -155,9 +212,9 @@ int compute(std::string& input)
 				else
 				{
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
+					valL = charToInt(input, i - 1, lnumb,minus);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					valR = charToInt(input, i + rnumb, rnumb,minus);
 
 					result = valL - valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -170,7 +227,11 @@ int compute(std::string& input)
 	}
 	int numb{};
 	numb = numbSize(input, 0, true);
-	result = charToInt(input,numb,numb);
+	int i{};
+	if (*minus == 1)
+		i = 1;
+
+	result = charToInt(input,numb+i,numb,minus);
 	return result;
 
 }
