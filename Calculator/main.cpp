@@ -55,8 +55,8 @@ int numbSize(std::string &input, int i,bool direction)
 
 void copy(std::string& input,int i , int lnumb ,char* buftmp)
 {
-	//if (*minus == 1)
-	//	lnumb++;
+	if (input[1] == '-')
+		lnumb++;
 
 	int j{};
 	while (buftmp[j] != '\0')
@@ -78,9 +78,10 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 	char buftmp[256]{};
 	if (input[i + (rnumb + 1)] == '!')
 	{
-		
 		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input,i,lnumb,buftmp);
+		if (input[1] == '-')
+			lnumb++;
 		input[i - lnumb + foo] = '!';
 		input[i - lnumb + foo+1] = '\0';
 
@@ -99,6 +100,10 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 		buf[j] = '\0';
 		j = 0;
 		foo = sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
+
+		if (input[1] == '-')
+			foo--;
+
 		copy(input, i, lnumb, buftmp);
 
 		while (buf[j] != '\0')
@@ -227,7 +232,7 @@ next2:
 	int numb{};
 	numb = numbSize(input, 0, true);
 	int i{};
-	if (*minus == 1)
+	if (input[1] == '-')
 		i = 1;
 
 	result = charToInt(input,numb+i,numb,minus);
