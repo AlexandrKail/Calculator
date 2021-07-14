@@ -1,22 +1,24 @@
 #include<iostream>
 
-int* minus = nullptr;
-
 //#Пеоеводит символы в числа#
 //#Принимает: массив данных, текущий указатель на последний символ пер. числа, кол. символов в переводимом числе# 
-int charToInt(std::string &input,int i,int numb,int* minus)
+int charToInt(std::string &input,int i,int numb)
 {
 	int b{};
+//два знака подряд
+	//if (input[i] == '-' && (input[i - 1] == '+' || input[i - 1] == '-' || input[i - 1] == '*' || input[i - 1] == '/'))
+	//	i++;
+	if (input[i-numb+1] == '-')
+		i++;
 
 	for (int fac{1}; numb > 0; numb--, i--,fac*=10)
 	{
 		b += static_cast<int>(input[i] - (int)'0')*fac;
 	}
 
-	if (*minus == 1)
+	if (input[i] == '-' && (input[i - 1] == '+' || input[i - 1] == '-' || input[i - 1] == '*' || input[i - 1] == '/' || input[i - 1] == '!'))
 		b = b - b * 2;
 
-	*minus = 0;
 	return b;
 }
 
@@ -44,6 +46,11 @@ int numbSize(std::string &input, int i,bool direction)
 	}
 	else
 	{
+		if (input[i + 1] == '-')
+		{
+			i++;
+		}
+
 		while (input[i + 1] != '+' && input[i + 1] != '-' && input[i + 1] != '*' && input[i + 1] != '/' && input[i + 1] != '!')
 		{
 			numb++;
@@ -53,9 +60,9 @@ int numbSize(std::string &input, int i,bool direction)
 	return numb;
 }
 
-void copy(std::string& input,int i , int lnumb ,char* buftmp)
+void copy(std::string& input,int i , int &lnumb ,char* buftmp)
 {
-	if (input[1] == '-')
+	if (input[i-lnumb-1] == '-' &&(input[i - lnumb-2] == '+' || input[i - lnumb-2] == '-' || input[i - lnumb-2] == '*' || input[i - lnumb-2] == '/' || input[i - lnumb-2] == '!'))
 		lnumb++;
 
 	int j{};
@@ -80,8 +87,8 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 	{
 		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input,i,lnumb,buftmp);
-		if (input[1] == '-')
-			lnumb++;
+		//if (input[1] == '-')
+		//	lnumb++;
 		input[i - lnumb + foo] = '!';
 		input[i - lnumb + foo+1] = '\0';
 
@@ -90,6 +97,9 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 	{
 		char buf[256]{};
 		int j{}, k{ i };
+
+		if (input[i + 1] == '-')
+			k++;
 
 		while (input[k + rnumb + 1] != '\0')
 		{
@@ -101,8 +111,6 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 		j = 0;
 		foo = sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 
-		if (input[1] == '-')
-			foo--;
 
 		copy(input, i, lnumb, buftmp);
 
@@ -123,8 +131,6 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 int compute(std::string& input)			
 {
 	int result{};
-	int min = 0;
-	minus = &min;
 	{	
 		int valL{}, valR{};
 		int lnumb{}, rnumb{};
@@ -133,34 +139,18 @@ int compute(std::string& input)
 		//processing * and /
 		while (input[i] != '!')
 		{
-			if (input[1] == '-')
-			{
-				{
-					i++;
-					while (input[i] != '!')
-					{
-						if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/')
-						{
-							*minus = 1;
-							goto next1;
-						}
-						i++;
-					}
-				}
-				*minus = 1;
-				break;
-			}
-next1:
-
 			if (input[i] == '*' || input[i] == '/')
 			{
+				//if (input[i + 1] == '-')
+				//	i++;
+
 				if (input[i] == '*')
 				{
 
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb,minus);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb,minus);
+					valR = charToInt(input, i + rnumb, rnumb);
 
 					result = valL * valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -168,9 +158,9 @@ next1:
 				else
 				{
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb,minus);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb,minus);
+					valR = charToInt(input, i + rnumb, rnumb);
 
 					result = valL / valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -184,31 +174,22 @@ next1:
 		i = 1;
 		while (input[i] != '!')
 		{
-			if (input[1] == '-')
+			if (input[i] == '-' && input[i - 1] == '!')
 			{
-					i++;
-					while (input[i] != '!')
-					{
-						if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/')
-						{
-							*minus = 1;
-							goto next2;
-						}
-						i++;
-					}
-
-				*minus = 1;
-				break;
+				i++;
+				continue;
 			}
-next2:
+
 			if (input[i] == '+' || input[i] == '-')
 			{
+				//if (input[i + 1] == '-')
+				//	i++;
 				if (input[i] == '+')
 				{
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb,minus);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb,minus);
+					valR = charToInt(input, i + rnumb, rnumb);
 
 					result = valL + valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -216,9 +197,9 @@ next2:
 				else
 				{
 					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb,minus);
+					valL = charToInt(input, i - 1, lnumb);
 					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb,minus);
+					valR = charToInt(input, i + rnumb, rnumb);
 
 					result = valL - valR;
 					compArray(input, i, result, lnumb, rnumb);
@@ -235,7 +216,7 @@ next2:
 	if (input[1] == '-')
 		i = 1;
 
-	result = charToInt(input,numb+i,numb,minus);
+	result = charToInt(input,numb+i,numb);
 	return result;
 
 }
@@ -248,10 +229,10 @@ int correctInput(std::string const& str,int size)
 		if ((int)str[i] >= (int)'0' && (int)str[i] <= (int)'9' || str[i] == '+' || str[i] == '-' ||
 			str[i] == '*' || str[i] == '/')
 		{
-//Проверка на ар. знак в начале
+//Проверка на арифм. знак в начале
 			if (i == 0)
 			{
-				if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
+				if (str[i] == '+'|| str[i] == '*' || str[i] == '/')
 				{
 					return -1;
 				}
@@ -260,12 +241,13 @@ int correctInput(std::string const& str,int size)
 // Проверка на два знака подряд
 			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
 			{
-				if (str[i - 1] == '+' || str[i - 1] == '-' || str[i - 1] == '*' || str[i - 1] == '/')
+				if (str[i + 1] == '+'||(str[i+1] == '-' && str[i+2] == '-') || str[i + 1] == '*' || str[i + 1] == '/')
 				{
 					return -1;
 				}
 			}
 
+//Проверка на арифм. знак в конце
 			if (str[size-1] == '+' || str[size-1] == '-' || str[size-1] == '*' || str[size-1] == '/')
 			{
 				return -1;
@@ -286,7 +268,7 @@ void userInput(std::string &input)
 	std::string str;
 	while (true)
 	{
-		std::cout << "Введите вырожение типа \"a#b#c=\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";	//	std::cout << "Введите число: ";
+		std::cout << "Введите вырожение типа \"a#b#c\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";	//	std::cout << "Введите число: ";
 		std::cin >> str;
 		if (correctInput(str,str.size()) == 0)
 			break;
