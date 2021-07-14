@@ -5,9 +5,7 @@
 int charToInt(std::string &input,int i,int numb)
 {
 	int b{};
-//два знака подряд
-	//if (input[i] == '-' && (input[i - 1] == '+' || input[i - 1] == '-' || input[i - 1] == '*' || input[i - 1] == '/'))
-	//	i++;
+
 	if (input[i-numb+1] == '-')
 		i++;
 
@@ -87,8 +85,6 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 	{
 		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input,i,lnumb,buftmp);
-		//if (input[1] == '-')
-		//	lnumb++;
 		input[i - lnumb + foo] = '!';
 		input[i - lnumb + foo+1] = '\0';
 
@@ -141,9 +137,6 @@ int compute(std::string& input)
 		{
 			if (input[i] == '*' || input[i] == '/')
 			{
-				//if (input[i + 1] == '-')
-				//	i++;
-
 				if (input[i] == '*')
 				{
 
@@ -182,8 +175,6 @@ int compute(std::string& input)
 
 			if (input[i] == '+' || input[i] == '-')
 			{
-				//if (input[i + 1] == '-')
-				//	i++;
 				if (input[i] == '+')
 				{
 					lnumb = numbSize(input, i, false);
