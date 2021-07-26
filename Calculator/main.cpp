@@ -60,11 +60,12 @@ int numbCount(std::string &input, int i,bool direction)
 
 void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 {
-	if (input[i-lnumb-1] == '-' &&(input[i - lnumb-2] == '+' || input[i - lnumb-2] == '-' || input[i - lnumb-2] == '*' || input[i - lnumb-2] == '/' || input[i - lnumb-2] == '!'))
-		lnumb++;
+
+	i -= lnumb;
+	if (input[i - 1] == '-' && (input[i - 2] == '+' || input[i - 2] == '-' || input[i - 2] == '*' || input[i - 2] == '/' || input[i - 2] == '!'))
+		i--;
 
 	int j{};
-	i -= lnumb;
 	while (buftmp[j] != '\0')
 	{
 		input[i] = buftmp[j];
