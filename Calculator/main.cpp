@@ -24,7 +24,7 @@ int charToInt(std::string &input,int i,int numb)
 //#Вычесляет колличество символов числа, до арифмитического знака или после#
 //#Принимает: массив с данными, текущая позиция в массиве, флаг направления  true - 
 //в право(число находящаяся с право от ар. знака), false - влево.#
-int numbSize(std::string &input, int i,bool direction)
+int numbCount(std::string &input, int i,bool direction)
 {
 	int numb{};
 
@@ -58,15 +58,16 @@ int numbSize(std::string &input, int i,bool direction)
 	return numb;
 }
 
-void copy(std::string& input,int i , int &lnumb ,char* buftmp)
+void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 {
 	if (input[i-lnumb-1] == '-' &&(input[i - lnumb-2] == '+' || input[i - lnumb-2] == '-' || input[i - lnumb-2] == '*' || input[i - lnumb-2] == '/' || input[i - lnumb-2] == '!'))
 		lnumb++;
 
 	int j{};
+	i -= lnumb;
 	while (buftmp[j] != '\0')
 	{
-		input[i - lnumb] = buftmp[j];
+		input[i] = buftmp[j];
 		j++;
 		i++;
 	}
@@ -77,7 +78,7 @@ void copy(std::string& input,int i , int &lnumb ,char* buftmp)
 //#Сжатие массива путём записи вычисленных значений#
 //#Принимает: Массив с данными, размер массива, текущая поз. в массиве, результат вырожения,
 //кол. символов лев. числа от ар. знака, кол. символов правого числа#
-void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
+void compressionArr(std::string& input, int i, int result, int lnumb, int rnumb)
 {
 	int foo{};
 	char buftmp[256]{};
@@ -85,8 +86,8 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 	{
 		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
 		copy(input,i,lnumb,buftmp);
-		input[i - lnumb + foo] = '!';
-		input[i - lnumb + foo+1] = '\0';
+		input[i] = '!';
+		input[i+1] = '\0';
 
 	}
 	else
@@ -113,11 +114,11 @@ void compArray(std::string& input, int i, int result, int lnumb, int rnumb)
 		while (buf[j] != '\0')
 		{
 
-			input[i - lnumb + foo] = buf[j];
+			input[i] = buf[j];
 			j++;
 			i++;
 		}
-		input[i - lnumb + foo] = '\0';
+		input[i] = '\0';
 	}
 
 }
@@ -128,8 +129,8 @@ int compute(std::string& input)
 {
 	int result{};
 	{	
-		int valL{}, valR{};
-		int lnumb{}, rnumb{};
+		int lNumb{}, rNumb{};
+		int lCount{}, rCount{};
 		int i{1};
 
 		//processing * and /
@@ -140,23 +141,23 @@ int compute(std::string& input)
 				if (input[i] == '*')
 				{
 
-					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
-					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					lCount = numbCount(input, i, false);
+					lNumb = charToInt(input, i - 1, lCount);
+					rCount = numbCount(input, i, true);
+					rNumb = charToInt(input, i + rCount, rCount);
 
-					result = valL * valR;
-					compArray(input, i, result, lnumb, rnumb);
+					result = lNumb * rNumb;
+					compressionArr(input, i, result, lCount, rCount);
 				}
 				else
 				{
-					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
-					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					lCount = numbCount(input, i, false);
+					lNumb = charToInt(input, i - 1, lCount);
+					rCount = numbCount(input, i, true);
+					rNumb = charToInt(input, i + rCount, rCount);
 
-					result = valL / valR;
-					compArray(input, i, result, lnumb, rnumb);
+					result = lNumb / rNumb;
+					compressionArr(input, i, result, lCount, rCount);
 				}
 
 				i = 0;		//Снова ищем знак * или /
@@ -177,23 +178,23 @@ int compute(std::string& input)
 			{
 				if (input[i] == '+')
 				{
-					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
-					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					lCount = numbCount(input, i, false);
+					lNumb = charToInt(input, i - 1, lCount);
+					rCount = numbCount(input, i, true);
+					rNumb = charToInt(input, i + rCount, rCount);
 
-					result = valL + valR;
-					compArray(input, i, result, lnumb, rnumb);
+					result = lNumb + rNumb;
+					compressionArr(input, i, result, lCount, rCount);
 				}
 				else
 				{
-					lnumb = numbSize(input, i, false);
-					valL = charToInt(input, i - 1, lnumb);
-					rnumb = numbSize(input, i, true);
-					valR = charToInt(input, i + rnumb, rnumb);
+					lCount = numbCount(input, i, false);
+					lNumb = charToInt(input, i - 1, lCount);
+					rCount = numbCount(input, i, true);
+					rNumb = charToInt(input, i + rCount, rCount);
 
-					result = valL - valR;
-					compArray(input, i, result, lnumb, rnumb);
+					result = lNumb - rNumb;
+					compressionArr(input, i, result, lCount, rCount);
 				}
 
 				i = 0;			//Снова ищем знак + или
@@ -202,7 +203,7 @@ int compute(std::string& input)
 		}
 	}
 	int numb{};
-	numb = numbSize(input, 0, true);
+	numb = numbCount(input, 0, true);
 	int i{};
 	if (input[1] == '-')
 		i = 1;
