@@ -79,21 +79,23 @@ void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 //#Сжатие массива путём записи вычисленных значений#
 //#Принимает: Массив с данными, размер массива, текущая поз. в массиве, результат вырожения,
 //кол. символов лев. числа от ар. знака, кол. символов правого числа#
-void compressionArr(std::string& input, int i, int result, int lnumb, int rnumb)
+void compressionArr(std::string& input, int &i, int result, int lnumb, int rnumb)
 {
 	int foo{};
-	char buftmp[256]{};
+	char buf[256]{};
 	if (input[i + (rnumb + 1)] == '!')
 	{
-		foo= sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
-		copy(input,i,lnumb,buftmp);
+		foo= sprintf_s(buf, sizeof(buf) - i, "%d", result);
+		copy(input,i,lnumb,buf);
 		input[i] = '!';
 		input[i+1] = '\0';
+		i--;//Чтобы указать на последний символ в массиве и не делать проход по нему
+		
 
 	}
 	else
 	{
-		char buf[256]{};
+		char buftmp[256]{};
 		int j{}, k{ i };
 
 		if (input[i + 1] == '-')
@@ -101,25 +103,27 @@ void compressionArr(std::string& input, int i, int result, int lnumb, int rnumb)
 
 		while (input[k + rnumb + 1] != '\0')
 		{
-			buf[j] = input[k + rnumb + 1];
+			buftmp[j] = input[k + rnumb + 1];
 			j++;
 			k++;
 		}
-		buf[j] = '\0';
+		buftmp[j] = '\0';
 		j = 0;
-		foo = sprintf_s(buftmp, sizeof(buftmp) - i, "%d", result);
+		foo = sprintf_s(buf, sizeof(buf) - i, "%d", result);
 
 
-		copy(input, i, lnumb, buftmp);
+		copy(input, i, lnumb, buf);
+		int tmp{i};  //Временная переменная для хранения индекса
 
-		while (buf[j] != '\0')
+		while (buftmp[j] != '\0')
 		{
 
-			input[i] = buf[j];
+			input[i] = buftmp[j];
 			j++;
 			i++;
 		}
 		input[i] = '\0';
+		i = tmp-1;
 	}
 
 }
@@ -128,84 +132,74 @@ void compressionArr(std::string& input, int i, int result, int lnumb, int rnumb)
 //#Принимает: массив преобразованных данных в символы, размер массива#
 int compute(std::string& input)			
 {
-	int result{};
-	{	
-		int lNumb{}, rNumb{};
-		int lCount{}, rCount{};
-		int i{1};
+	int result{};	
+	int lNumb{}, rNumb{};
+	int lCount{}, rCount{};
+	int i{1};
 
-		//processing * and /
-		while (input[i] != '!')
+	//processing * and /
+	while (input[i] != '!')
+	{
+		if (input[i] == '*')
 		{
-			if (input[i] == '*' || input[i] == '/')
-			{
-				if (input[i] == '*')
-				{
 
-					lCount = numbCount(input, i, false);
-					lNumb = charToInt(input, i - 1, lCount);
-					rCount = numbCount(input, i, true);
-					rNumb = charToInt(input, i + rCount, rCount);
+			lCount = numbCount(input, i, false);
+			lNumb = charToInt(input, i - 1, lCount);
+			rCount = numbCount(input, i, true);
+			rNumb = charToInt(input, i + rCount, rCount);
 
-					result = lNumb * rNumb;
-					compressionArr(input, i, result, lCount, rCount);
-				}
-				else
-				{
-					lCount = numbCount(input, i, false);
-					lNumb = charToInt(input, i - 1, lCount);
-					rCount = numbCount(input, i, true);
-					rNumb = charToInt(input, i + rCount, rCount);
-
-					result = lNumb / rNumb;
-					compressionArr(input, i, result, lCount, rCount);
-				}
-
-				i = 0;		//Снова ищем знак * или /
-			}
-			i++;
+			result = lNumb * rNumb;
+			compressionArr(input, i, result, lCount, rCount);
 		}
-	//Processing + and -
-		i = 1;
-		while (input[i] != '!')
+		else if(input[i] == '/')
 		{
-			if (input[i] == '-' && input[i - 1] == '!')
-			{
-				i++;
-				continue;
-			}
+			lCount = numbCount(input, i, false);
+			lNumb = charToInt(input, i - 1, lCount);
+			rCount = numbCount(input, i, true);
+			rNumb = charToInt(input, i + rCount, rCount);
 
-			if (input[i] == '+' || input[i] == '-')
-			{
-				if (input[i] == '+')
-				{
-					lCount = numbCount(input, i, false);
-					lNumb = charToInt(input, i - 1, lCount);
-					rCount = numbCount(input, i, true);
-					rNumb = charToInt(input, i + rCount, rCount);
-
-					result = lNumb + rNumb;
-					compressionArr(input, i, result, lCount, rCount);
-				}
-				else
-				{
-					lCount = numbCount(input, i, false);
-					lNumb = charToInt(input, i - 1, lCount);
-					rCount = numbCount(input, i, true);
-					rNumb = charToInt(input, i + rCount, rCount);
-
-					result = lNumb - rNumb;
-					compressionArr(input, i, result, lCount, rCount);
-				}
-
-				i = 0;			//Снова ищем знак + или
-			}
-			i++;
+			result = lNumb / rNumb;
+			compressionArr(input, i, result, lCount, rCount);
 		}
+
+		i++;
 	}
+	//Pocessing + and -
+	i = 1;
+	while (input[i] != '!')
+	{
+		if (input[i] == '-' && input[i - 1] == '!')
+		{
+			i++;
+			continue;
+		}
+
+		if (input[i] == '+')
+		{
+			lCount = numbCount(input, i, false);
+			lNumb = charToInt(input, i - 1, lCount);
+			rCount = numbCount(input, i, true);
+			rNumb = charToInt(input, i + rCount, rCount);
+
+			result = lNumb + rNumb;
+			compressionArr(input, i, result, lCount, rCount);
+		}
+		else if(input[i] == '-')
+		{
+			lCount = numbCount(input, i, false);
+			lNumb = charToInt(input, i - 1, lCount);
+			rCount = numbCount(input, i, true);
+			rNumb = charToInt(input, i + rCount, rCount);
+
+			result = lNumb - rNumb;
+			compressionArr(input, i, result, lCount, rCount);
+		}
+
+		i++;
+	}
+
 	int numb{};
 	numb = numbCount(input, 0, true);
-	int i{};
 	if (input[1] == '-')
 		i = 1;
 
