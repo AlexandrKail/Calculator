@@ -6,14 +6,15 @@ int charToInt(std::string &input,int i,int numb)
 {
 	int b{};
 
-	if (input[i-numb+1] == '-')
-		i++;
-
-	for (int fac{1}; numb > 0; numb--, i--,fac*=10)
+	int isDegree{ 1 };
+	while (input[i] != '+' && input[i] != '-' && input[i] != '*' && input[i] != '/' && input[i] != '!')
 	{
-		b += static_cast<int>(input[i] - (int)'0')*fac;
+		b += static_cast<int>(input[i] - (int)'0') * isDegree;		//Умнажаем число на степень десяти
+		isDegree *= 10;
+		i--;
 	}
 
+	//Если число отрицательное делаем отрицательным
 	if (input[i] == '-' && (input[i - 1] == '+' || input[i - 1] == '-' || input[i - 1] == '*' || input[i - 1] == '/' || input[i - 1] == '!'))
 		b = b - b * 2;
 
@@ -28,6 +29,7 @@ int numbCount(std::string &input, int i,bool direction)
 {
 	int numb{};
 
+	//Если результат выражения отрицательное число
 	if (input[1] == '-' && (input[i] != '+' && input[i] != '-' && input[i] != '*' && input[i] != '/'))
 	{
 		i++;
@@ -36,6 +38,7 @@ int numbCount(std::string &input, int i,bool direction)
 
 	if (direction != true)
 	{
+		//Считаем количество символов до следующего знака
 		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i-1] != '!')
 		{
 			numb++;
@@ -44,9 +47,10 @@ int numbCount(std::string &input, int i,bool direction)
 	}
 	else
 	{
-		if (input[i + 1] == '-')
+		if (input[i + 1] == '-')//Если унарный минус
 		{
-			i++;
+			i++;				//Начинаем с него
+			numb++;				//И берём его в счёт(в левую сторону не надо)
 		}
 
 		while (input[i + 1] != '+' && input[i + 1] != '-' && input[i + 1] != '*' && input[i + 1] != '/' && input[i + 1] != '!')
@@ -72,7 +76,6 @@ void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 		j++;
 		i++;
 	}
-	//input[i - lnumb] = '\0';
 }
 
 
@@ -81,11 +84,11 @@ void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 //кол. символов лев. числа от ар. знака, кол. символов правого числа#
 void compressionArr(std::string& input, int &i, int result, int lnumb, int rnumb)
 {
-	int foo{};
+	int count{};
 	char buf[256]{};
 	if (input[i + (rnumb + 1)] == '!')
 	{
-		foo= sprintf_s(buf, sizeof(buf) - i, "%d", result);
+		count= sprintf_s(buf, sizeof(buf) - i, "%d", result);
 		copy(input,i,lnumb,buf);
 		input[i] = '!';
 		input[i+1] = '\0';
@@ -98,9 +101,6 @@ void compressionArr(std::string& input, int &i, int result, int lnumb, int rnumb
 		char buftmp[256]{};
 		int j{}, k{ i };
 
-		if (input[i + 1] == '-')
-			k++;
-
 		while (input[k + rnumb + 1] != '\0')
 		{
 			buftmp[j] = input[k + rnumb + 1];
@@ -109,7 +109,7 @@ void compressionArr(std::string& input, int &i, int result, int lnumb, int rnumb
 		}
 		buftmp[j] = '\0';
 		j = 0;
-		foo = sprintf_s(buf, sizeof(buf) - i, "%d", result);
+		count = sprintf_s(buf, sizeof(buf) - i, "%d", result);
 
 
 		copy(input, i, lnumb, buf);
@@ -130,7 +130,7 @@ void compressionArr(std::string& input, int &i, int result, int lnumb, int rnumb
 
 //#Вычесления значений вырожения# 
 //#Принимает: массив преобразованных данных в символы, размер массива#
-int compute(std::string& input)			
+int doColculations(std::string& input)			
 {
 	int result{};	
 	int lNumb{}, rNumb{};
@@ -144,12 +144,12 @@ int compute(std::string& input)
 		{
 
 			lCount = numbCount(input, i, false);
-			lNumb = charToInt(input, i - 1, lCount);
+			lNumb = charToInt(input, i - 1, lCount);	//i указывает на символ перед знаком
 			rCount = numbCount(input, i, true);
-			rNumb = charToInt(input, i + rCount, rCount);
+			rNumb = charToInt(input, i + rCount, rCount);//i указываит на младший разряд числа после знака
 
 			result = lNumb * rNumb;
-			compressionArr(input, i, result, lCount, rCount);
+			compressionArr(input, i, result, lCount, rCount);//Записываем результат в строку и сжимаем её на эти символы
 		}
 		else if(input[i] == '/')
 		{
@@ -198,6 +198,7 @@ int compute(std::string& input)
 		i++;
 	}
 
+	i = 0;
 	int numb{};
 	numb = numbCount(input, 0, true);
 	if (input[1] == '-')
@@ -228,7 +229,7 @@ int correctInput(std::string const& str,int size)
 // Проверка на два знака подряд
 			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
 			{
-				if (str[i + 1] == '+'||(str[i+1] == '-' && str[i+2] == '-') || str[i + 1] == '*' || str[i + 1] == '/')
+				if (str[i + 1] == '+'|| str[1] == '-' || (str[i+1] == '-' && str[i+2] == '-') || str[i + 1] == '*' || str[i + 1] == '/')
 				{
 					return -1;
 				}
@@ -275,6 +276,6 @@ int main()
 	std::string input;
 	userInput(input);
 	int result{};
-	result = compute(input);
+	result = doColculations(input);
 	std::cout << "Результат = " << result << '\n';
 }
