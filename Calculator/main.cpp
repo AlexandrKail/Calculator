@@ -214,10 +214,11 @@ int correctInput(std::string const& str,int size)
 	int i{};
 	while (str[i] != '\0')
 	{
+		//Корректно если: число, арифм. знак или знак дес. дроби 
 		if ((int)str[i] >= (int)'0' && (int)str[i] <= (int)'9' || str[i] == '+' || str[i] == '-' ||
 			str[i] == '*' || str[i] == '/')
 		{
-//Проверка на арифм. знак в начале
+			//Проверка на арифм. знак в начале
 			if (i == 0)
 			{
 				if (str[i] == '+'|| str[i] == '*' || str[i] == '/')
@@ -226,7 +227,7 @@ int correctInput(std::string const& str,int size)
 				}
 			}
 
-// Проверка на два знака подряд
+			// Проверка на два знака подряд
 			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
 			{
 				if (str[i + 1] == '+'|| str[1] == '-' || (str[i+1] == '-' && str[i+2] == '-') || str[i + 1] == '*' || str[i + 1] == '/')
@@ -235,7 +236,7 @@ int correctInput(std::string const& str,int size)
 				}
 			}
 
-//Проверка на арифм. знак в конце
+			//Проверка на арифм. знак в конце
 			if (str[size-1] == '+' || str[size-1] == '-' || str[size-1] == '*' || str[size-1] == '/')
 			{
 				return -1;
