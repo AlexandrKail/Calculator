@@ -79,7 +79,7 @@ void intToChar(char* buf,FloatNumb& obj)
 			}
 			else
 			{
-				buf[i] = '.';
+				buf[i] = ',';
 				--obj.decPart;
 			}
 		}
@@ -113,14 +113,14 @@ double charToDouble(std::string &input,int i,int numb)
 	int tmp{i};
 
 	int isDegree{ 1 };
-	while (input[i] != '+' && input[i] != '-' && input[i] != '*' && input[i] != '/' && input[i] != '!' && input[i] != '.')
+	while (input[i] != '+' && input[i] != '-' && input[i] != '*' && input[i] != '/' && input[i] != '!' && input[i] != ',')
 	{
 		i_numb += static_cast<int>(input[i] - (int)'0') * isDegree;		//Умнажаем число на степень десяти
 		isDegree *= 10;
 		i--;
 	}
 
-	if (input[i] == '.')
+	if (input[i] == ',')
 	{
 		isDegree = 1;
 		tmp = tmp - i;
@@ -356,7 +356,7 @@ int correctInput(std::string const& str,int size)
 	{
 		//Корректно если: число, арифм. знак или знак дес. дроби 
 		if ((int)str[i] >= (int)'0' && (int)str[i] <= (int)'9' || str[i] == '+' || str[i] == '-' ||
-			str[i] == '*' || str[i] == '/' || str[i] == '.')
+			str[i] == '*' || str[i] == '/' || str[i] == ',')
 		{
 			//Проверка на арифм. знак в начале
 			if (i == 0)
@@ -391,12 +391,12 @@ int correctInput(std::string const& str,int size)
 	//Проверка на корректность десятичной дроби
 	if (str[0] != '-')
 	{
-		if (str[0] == '.')
+		if (str[0] == ',')
 			return -1;
 	}
 	else
 	{
-		if (str[1] == '.')
+		if (str[1] == ',')
 			return -1;
 		i++;
 	}
@@ -407,7 +407,7 @@ int correctInput(std::string const& str,int size)
 		//Сканируем число на наличие точек
 		while (str[i] != '+' && str[i] != '-' && str[i] != '*' && str[i] != '/' && str[i] != '\0')
 		{
-			if (str[i] == '.')
+			if (str[i] == ',')
 				count++;
 
 			i++;
@@ -423,7 +423,7 @@ int correctInput(std::string const& str,int size)
 
 		if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
 		{
-			if (str[i - 1] == '.' || str[i+1] == '.')
+			if (str[i - 1] == ',' || str[i+1] == ',')
 				return -1;
 		}
 
