@@ -1,81 +1,115 @@
 #include<iostream>
 #include<cmath>
+#include<algorithm>
 
 //Константы
-const int PRECESSION = 10000000;
+const int PRECESSION = 100000000;
 //Глобальные переменные
-bool fNumb{};
+int _exp{};							//Показывает сколько еулей перед числом
 
-struct FloatNumb
+//Структура для хранения вещественного числа в целочисленном предстовлении
+class FloatNumb
 {
-	int intPart;
+public:
+	int whole;
 	int decPart;
+	bool neg;
+	FloatNumb(int _intPart = 0, int _decPart = -1,bool _neg = false) : whole(_intPart),decPart(_decPart), neg(_neg)
+	{}
 };
 
 //#Разделяет целую и дробную часть вещественного числ
 //#Принимает: структура в которую заносится результат, число которое предстоит разделить
-void devideFloat(FloatNumb& obj, float val)
+void devideDouble(FloatNumb& obj, double val)
 {
-	float tmpVal{};
-	obj.intPart = static_cast<int>(val);
-	tmpVal = val - static_cast<float>(obj.intPart);
-	obj.decPart = static_cast<int>(tmpVal * PRECESSION);
-
-}
-
-void intToChar(char* buf,int& i ,int val)
-{
-	while (true)
+	//Если число отрицательное устанавлеваем влаг
+	if (val < 0)
 	{
-		buf[i] = static_cast<char>(val % 10 + '0');
-		++i;
-		if ((val /= 10) == 0)
-			break;
+		val = -val;
+		obj.neg = true;
+	}
+
+	double tmpVal{};
+	obj.whole = static_cast<int>(val);
+
+	tmpVal = val - static_cast<float>(obj.whole);
+	double tmp = 0.1;
+	if (tmpVal > 0)
+	{
+		while(tmpVal < tmp)
+		{
+			++_exp;
+			tmp /= 10;
+		}
+		obj.decPart = static_cast<int>(tmpVal * PRECESSION);
+
 	}
 
 }
 
-void inversArr(char* buf, const int SZ)
+void inversArr(char* buf, bool negative, const int SZ)
 {
-	char tmp[256]{};
-	for (int j{},i{SZ}; i >= 0; --i, j++)
-		tmp[j] = buf[i];
-
-	for (int j{}; j <= SZ; ++j)
-		buf[j] = tmp[j];
+	int i{};
+	if (negative == true)
+	{
+		buf[SZ] = buf[0];
+		buf[0] = '-';
+		++i;
+	}
+	for (int j{ SZ - 1 }; i < j; --j, i++)
+		std::swap(buf[i], buf[j]);
 }
 
+void intToChar(char* buf,FloatNumb& obj)
+{
+	int i{};
+	while (true)
+	{
+		if (obj.decPart > 0)
+		{
+				buf[i] = static_cast<char>(obj.decPart % 10 + '0');
+				obj.decPart /= 10;
+		}
+		else if (obj.decPart == 0)
+		{
+			if (_exp > 0)
+			{
+				buf[i] = '0';
+				--_exp;
+			}
+			else
+			{
+				buf[i] = '.';
+				--obj.decPart;
+			}
+		}
+		else if (obj.whole > 0)
+		{
+			buf[i] = static_cast<char>(obj.whole % 10 + '0');
+			obj.whole /= 10;
+		}
+		else
+			break;
+		++i;
+	}
 
-void floatToChar(char* buf, float f_result)
+	inversArr(buf, obj.neg, i);
+
+}
+
+void DoubleToChar(char* buf, double result)
 {
 	FloatNumb obj;
-	devideFloat(obj, f_result);
-	int i{};
-	intToChar(buf, i, obj.decPart);
-	buf[i] = '.';
-	++i;
-	intToChar(buf, i, obj.intPart);
-	
-	inversArr(buf, i-1);
-
-	//int factor{10};
-	//float tmp;
-	//int iTmp{};
-	//for (int i{}; i < 6; i++)
-	//{
-	//	tmp = decPart * factor;
-	//	iTmp = (int)tmp;
-	//	factor *= 10;
-
-	//}
+	devideDouble(obj, result);
+	intToChar(buf,obj);
 }
 
 //#Переводит символы в числа#
 //#Принимает: массив данных, текущий указатель на последний символ пер. числа, кол. символов в переводимом числе# 
-float charToFloat(std::string &input,int i,int numb)
+double charToDouble(std::string &input,int i,int numb)
 {
 	int i_numb{};
-	float f_numb{};
+	double f_numb{};
 	int tmp{i};
 
 	int isDegree{ 1 };
@@ -91,7 +125,7 @@ float charToFloat(std::string &input,int i,int numb)
 		isDegree = 1;
 		tmp = tmp - i;
 		i--;
-		f_numb = (float)i_numb;
+		f_numb = (double)i_numb;
 		for (int j{}; j < tmp; j++)
 		{
 			isDegree *= 10;
@@ -141,11 +175,8 @@ int numbCount(std::string &input, int i,bool direction)
 		//Считаем количество символов до следующего знака
 		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i-1] != '!')
 		{
-			if(input[i-1] == '.')
-				fNumb = true;
 			numb++;
 			i--;
-	
 		}
 	}
 	else
@@ -158,8 +189,6 @@ int numbCount(std::string &input, int i,bool direction)
 
 		while (input[i + 1] != '+' && input[i + 1] != '-' && input[i + 1] != '*' && input[i + 1] != '/' && input[i + 1] != '!')
 		{
-			if (input[i + 1] == '.')
-				fNumb = true;
 			numb++;
 			i++;
 		}
@@ -187,18 +216,17 @@ void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 //#Сжатие массива путём записи вычисленных значений#
 //#Принимает: Массив с данными, размер массива, текущая поз. в массиве, результат вырожения,
 //кол. символов лев. числа от ар. знака, кол. символов правого числа#
-void compressionArr(std::string& input, int &i, float result, int lnumb, int rnumb)
+void compressionArr(std::string& input, int &i, double result, int lnumb, int rnumb)
 {
 	int count{};
 	char buf[256]{};
 	if (input[i + (rnumb + 1)] == '!')
 	{
-		floatToChar(buf, result);
-	//	count= sprintf_s(buf, sizeof(buf) - i, "%d", result);
+		DoubleToChar(buf, result);
 		copy(input,i,lnumb,buf);
 		input[i] = '!';
 		input[i+1] = '\0';
-		i--;//Чтобы указать на последний символ в массиве и не делать проход по нему
+		i--;				//Чтобы указать на последний символ в массиве и не делать проход по нему
 	}
 	else
 	{
@@ -214,10 +242,7 @@ void compressionArr(std::string& input, int &i, float result, int lnumb, int rnu
 		buftmp[j] = '\0';
 		j = 0;
 
-		floatToChar(buf, result);
-	//	count = sprintf_s(buf, sizeof(buf) - i, "%d", result);
-
-
+		DoubleToChar(buf, result);
 		copy(input, i, lnumb, buf);
 		int tmp{i};  //Временная переменная для хранения индекса
 
@@ -245,12 +270,10 @@ void compressionArr(std::string& input, int &i, float result, int lnumb, int rnu
 
 //#Вычесления значений вырожения# 
 //#Принимает: массив преобразованных данных в символы, размер массива#
-int doColculations(std::string& input)			
-{
-	int result{};	
-	float f_result{};
-	int lNumb{}, rNumb{};
-	float f_lNumb{}, f_rNumb{};
+double doColculations(std::string& input)			
+{	
+	double result{};
+	double lNumb{}, rNumb{};
 	int lCount{}, rCount{};
 	int i{1};
 
@@ -262,29 +285,18 @@ int doColculations(std::string& input)
 			//Считаем количество символов слево и справо от знака
 			lCount = numbCount(input, i, false);
 			rCount = numbCount(input, i, true);
-			if (fNumb == true)
-			{
-				f_lNumb = charToFloat(input, i - 1, lCount);	//i указывает на символ перед знаком
-				f_rNumb = charToFloat(input, i + rCount, rCount);	
-				f_result = f_lNumb * f_rNumb;
-				compressionArr(input, i, f_result, lCount, rCount);
-			}
-			else
-			{
-				lNumb = charToFloat(input, i - 1, lCount);	//i указывает на символ перед знаком
-				rNumb = charToFloat(input, i + rCount, rCount);//i указываит на младший разряд числа после знака
-				result = lNumb * rNumb;
-				compressionArr(input, i, result, lCount, rCount);//Записываем результат в строку и сжимаем её на эти символы
-			}
 
-			fNumb = false;
+			lNumb = charToDouble(input, i - 1, lCount);	//i указывает на символ перед знаком
+			rNumb = charToDouble(input, i + rCount, rCount);	
+			result = lNumb * rNumb;
+			compressionArr(input, i, result, lCount, rCount);
 		}
 		else if(input[i] == '/')
 		{
 			lCount = numbCount(input, i, false);
-			lNumb = charToFloat(input, i - 1, lCount);
+			lNumb = charToDouble(input, i - 1, lCount);
 			rCount = numbCount(input, i, true);
-			rNumb = charToFloat(input, i + rCount, rCount);
+			rNumb = charToDouble(input, i + rCount, rCount);
 
 			result = lNumb / rNumb;
 			compressionArr(input, i, result, lCount, rCount);
@@ -305,9 +317,9 @@ int doColculations(std::string& input)
 		if (input[i] == '+')
 		{
 			lCount = numbCount(input, i, false);
-			lNumb = charToFloat(input, i - 1, lCount);
+			lNumb = charToDouble(input, i - 1, lCount);
 			rCount = numbCount(input, i, true);
-			rNumb = charToFloat(input, i + rCount, rCount);
+			rNumb = charToDouble(input, i + rCount, rCount);
 
 			result = lNumb + rNumb;
 			compressionArr(input, i, result, lCount, rCount);
@@ -315,9 +327,9 @@ int doColculations(std::string& input)
 		else if(input[i] == '-')
 		{
 			lCount = numbCount(input, i, false);
-			lNumb = charToFloat(input, i - 1, lCount);
+			lNumb = charToDouble(input, i - 1, lCount);
 			rCount = numbCount(input, i, true);
-			rNumb = charToFloat(input, i + rCount, rCount);
+			rNumb = charToDouble(input, i + rCount, rCount);
 
 			result = lNumb - rNumb;
 			compressionArr(input, i, result, lCount, rCount);
@@ -332,7 +344,7 @@ int doColculations(std::string& input)
 	if (input[1] == '-')
 		i = 1;
 
-	result = charToFloat(input,numb+i,numb);
+	result = charToDouble(input,numb+i,numb);
 	return result;
 
 }
@@ -447,7 +459,7 @@ int main()
 	setlocale(0, "ru_RU.utf8");
 	std::string input;
 	userInput(input);
-	int result{};
+	double result{};
 	result = doColculations(input);
-	std::cout << "Результат = " << result << '\n';
+	std::cout << "Результат = " <<result << '\n';
 }
