@@ -13,7 +13,7 @@ struct FloatNumb
 	int whole;
 	int decPart;
 	bool neg;
-	FloatNumb(int _intPart = 0, int _decPart = -1,bool _neg = false) : whole(_intPart),decPart(_decPart), neg(_neg)
+	FloatNumb(int _intPart = 0, int _decPart = -1, bool _neg = false) : whole(_intPart), decPart(_decPart), neg(_neg)
 	{}
 };
 
@@ -35,7 +35,7 @@ void devideDouble(FloatNumb& obj, double val)
 	double tmp = 0.1;
 	if (tmpVal > 0)
 	{
-		while(tmpVal < tmp)
+		while (tmpVal < tmp)
 		{
 			++_exp;
 			tmp /= 10;
@@ -59,15 +59,15 @@ void inversArr(char* buf, bool negative, const int SZ)
 		std::swap(buf[i], buf[j]);
 }
 
-void intToChar(char* buf,FloatNumb& obj)
+void intToChar(char* buf, FloatNumb & obj)
 {
 	int i{};
 	while (true)
 	{
 		if (obj.decPart > 0)
 		{
-				buf[i] = static_cast<char>(obj.decPart % 10 + '0');
-				obj.decPart /= 10;
+			buf[i] = static_cast<char>(obj.decPart % 10 + '0');
+			obj.decPart /= 10;
 		}
 		else if (obj.decPart == 0)
 		{
@@ -100,16 +100,16 @@ void DoubleToChar(char* buf, double result)
 {
 	FloatNumb obj;
 	devideDouble(obj, result);
-	intToChar(buf,obj);
+	intToChar(buf, obj);
 }
 
 //#Переводит символы в числа#
 //#Принимает: массив данных, текущий указатель на последний символ пер. числа, кол. символов в переводимом числе# 
-double charToDouble(std::string &input,int i,int numb)
+double charToDouble(std::string & input, int i, int numb)
 {
 	int i_numb{};
 	double f_numb{};
-	int tmp{i};
+	int tmp{ i };
 
 	int isDegree{ 1 };
 	while (input[i] != '+' && input[i] != '-' && input[i] != '*' && input[i] != '/' && input[i] != '!' && input[i] != ',')
@@ -159,7 +159,7 @@ double charToDouble(std::string &input,int i,int numb)
 //#Вычесляет колличество символов числа, до арифмитического знака или после#
 //#Принимает: массив с данными, текущая позиция в массиве, флаг направления  true - 
 //в право(число находящаяся с право от ар. знака), false - влево.#
-int numbCount(std::string &input, int i,bool direction)
+int numbCount(std::string & input, int i, bool direction)
 {
 	int numb{};
 
@@ -172,7 +172,7 @@ int numbCount(std::string &input, int i,bool direction)
 	if (direction != true)
 	{
 		//Считаем количество символов до следующего знака
-		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i-1] != '!')
+		while (input[i - 1] != '+' && input[i - 1] != '-' && input[i - 1] != '*' && input[i - 1] != '/' && input[i - 1] != '!')
 		{
 			numb++;
 			i--;
@@ -195,7 +195,7 @@ int numbCount(std::string &input, int i,bool direction)
 	return numb;
 }
 
-void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
+void copy(std::string & input, int& i, int& lnumb, char* buftmp)
 {
 
 	i -= lnumb;
@@ -215,16 +215,16 @@ void copy(std::string& input,int &i , int &lnumb ,char* buftmp)
 //#Сжатие массива путём записи вычисленных значений#
 //#Принимает: Массив с данными, размер массива, текущая поз. в массиве, результат вырожения,
 //кол. символов лев. числа от ар. знака, кол. символов правого числа#
-void compressionArr(std::string& input, int &i, double result, int lnumb, int rnumb)
+void compressionArr(std::string & input, int& i, double result, int lnumb, int rnumb)
 {
 	int count{};
 	char buf[256]{};
 	if (input[i + (rnumb + 1)] == '!')
 	{
 		DoubleToChar(buf, result);
-		copy(input,i,lnumb,buf);
+		copy(input, i, lnumb, buf);
 		input[i] = '!';
-		input[i+1] = '\0';
+		input[i + 1] = '\0';
 		i--;				//Чтобы указать на последний символ в массиве и не делать проход по нему
 	}
 	else
@@ -243,7 +243,7 @@ void compressionArr(std::string& input, int &i, double result, int lnumb, int rn
 
 		DoubleToChar(buf, result);
 		copy(input, i, lnumb, buf);
-		int tmp{i};  //Временная переменная для хранения индекса
+		int tmp{ i };  //Временная переменная для хранения индекса
 
 		while (buftmp[j] != '\0')
 		{
@@ -262,19 +262,19 @@ void compressionArr(std::string& input, int &i, double result, int lnumb, int rn
 
 		}
 		input[i] = '\0';
-		i = tmp-1;
+		i = tmp - 1;
 	}
 
 }
 
 //#Вычесления значений вырожения# 
 //#Принимает: массив преобразованных данных в символы, размер массива#
-double doColculations(std::string& input)			
-{	
+double doColculations(std::string & input)
+{
 	double result{};
 	double lNumb{}, rNumb{};
 	int lCount{}, rCount{};
-	int i{1};
+	int i{ 1 };
 
 	//processing * and /
 	while (input[i] != '!')
@@ -286,11 +286,11 @@ double doColculations(std::string& input)
 			rCount = numbCount(input, i, true);
 
 			lNumb = charToDouble(input, i - 1, lCount);	//i указывает на символ перед знаком
-			rNumb = charToDouble(input, i + rCount, rCount);	
+			rNumb = charToDouble(input, i + rCount, rCount);
 			result = lNumb * rNumb;
 			compressionArr(input, i, result, lCount, rCount);
 		}
-		else if(input[i] == '/')
+		else if (input[i] == '/')
 		{
 			lCount = numbCount(input, i, false);
 			lNumb = charToDouble(input, i - 1, lCount);
@@ -323,7 +323,7 @@ double doColculations(std::string& input)
 			result = lNumb + rNumb;
 			compressionArr(input, i, result, lCount, rCount);
 		}
-		else if(input[i] == '-')
+		else if (input[i] == '-')
 		{
 			lCount = numbCount(input, i, false);
 			lNumb = charToDouble(input, i - 1, lCount);
@@ -343,12 +343,12 @@ double doColculations(std::string& input)
 	if (input[1] == '-')
 		i = 1;
 
-	result = charToDouble(input,numb+i,numb);
+	result = charToDouble(input, numb + i, numb);
 	return result;
 
 }
 
-int correctInput(std::string const& str,int size)
+int correctInput(std::string const& str, int size)
 {
 	int i{};
 	while (str[i] != '\0')
@@ -360,7 +360,7 @@ int correctInput(std::string const& str,int size)
 			//Проверка на арифм. знак в начале
 			if (i == 0)
 			{
-				if (str[i] == '+'|| str[i] == '*' || str[i] == '/')
+				if (str[i] == '+' || str[i] == '*' || str[i] == '/')
 				{
 					return -1;
 				}
@@ -369,14 +369,14 @@ int correctInput(std::string const& str,int size)
 			// Проверка на два знака подряд
 			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
 			{
-				if (str[i + 1] == '+' || str[1] == '-' || (str[i+1] == '-' && str[i+2] == '-') || str[i + 1] == '*' || str[i + 1] == '/')
+				if (str[i + 1] == '+' || str[1] == '-' || (str[i + 1] == '-' && str[i + 2] == '-') || str[i + 1] == '*' || str[i + 1] == '/')
 				{
 					return -1;
 				}
 			}
 
 			//Проверка на арифм. знак в конце
-			if (str[size-1] == '+' || str[size-1] == '-' || str[size-1] == '*' || str[size-1] == '/')
+			if (str[size - 1] == '+' || str[size - 1] == '-' || str[size - 1] == '*' || str[size - 1] == '/')
 			{
 				return -1;
 			}
@@ -422,7 +422,7 @@ int correctInput(std::string const& str,int size)
 
 		if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
 		{
-			if (str[i - 1] == ',' || str[i+1] == ',')
+			if (str[i - 1] == ',' || str[i + 1] == ',')
 				return -1;
 		}
 
@@ -434,14 +434,14 @@ int correctInput(std::string const& str,int size)
 
 //#Получает значения от пользователя и переводет их в символы#
 //#Принимает: массив для данных, размер массива#
-void userInput(std::string &input)
+void userInput(std::string & input)
 {
 	std::string str;
 	while (true)
 	{
 		std::cout << "Введите вырожение типа \"a#b#c\" где \"#\" символы \"+,-,*,/\", а \"a,b,c\" десятичные числа:\n>> ";	//	std::cout << "Введите число: ";
 		std::cin >> str;
-		if (correctInput(str,str.size()) == 0)
+		if (correctInput(str, str.size()) == 0)
 			break;
 		std::cout << "Неверный ввод!\n";
 	}
@@ -460,5 +460,5 @@ int main()
 	userInput(input);
 	double result{};
 	result = doColculations(input);
-	std::cout << "Результат = " <<result << '\n';
+	std::cout << "Результат = " << result << '\n';
 }
