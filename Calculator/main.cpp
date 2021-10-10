@@ -8,9 +8,8 @@ const int PRECESSION = 100000000;
 int _exp{};							//Показывает сколько еулей перед числом
 
 //Структура для хранения вещественного числа в целочисленном предстовлении
-class FloatNumb
+struct FloatNumb
 {
-public:
 	int whole;
 	int decPart;
 	bool neg;
